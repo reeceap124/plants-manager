@@ -1,3 +1,11 @@
-import { createContext } from 'react'
+import React, { createContext, useContext } from 'react'
 
-export const UserContext = createContext(null)
+const UserContext = createContext(null)
+
+export function useUser() {
+  return useContext(UserContext)
+}
+
+export function UserProvider({ user, children }) {
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>
+}

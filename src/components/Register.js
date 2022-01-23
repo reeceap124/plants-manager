@@ -1,10 +1,8 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { UserContext } from '../context/UserContext'
 
-export default function Register(props) {
-  const [user, setUser] = useContext(UserContext)
+export default function Register() {
   let navigate = useNavigate()
   const defaultCreds = {
     email: '',
@@ -27,7 +25,6 @@ export default function Register(props) {
       )
       if (data.status === 'success') {
         setCredentials(defaultCreds)
-        setUser(JSON.parse(atob(data.token.split('.')[1])))
         localStorage.setItem('plantsManagerToken', data.token)
         navigate('/dashboard', { replace: true })
       }

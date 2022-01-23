@@ -1,10 +1,8 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { UserContext } from '../context/UserContext'
 
 export default function Login() {
-  const [user, setUser] = useContext(UserContext)
   let navigate = useNavigate()
   const defaultCreds = { email: '', password: '' }
   const [credentials, setCredentials] = useState(defaultCreds)
@@ -21,7 +19,6 @@ export default function Login() {
       )
       if (data.status === 'success') {
         setCredentials(defaultCreds)
-        setUser(JSON.parse(atob(data.token.split('.')[1])))
         localStorage.setItem('plantsManagerToken', data.token)
         navigate('/dashboard', { replace: true })
       }
@@ -33,7 +30,7 @@ export default function Login() {
   return (
     <form onSubmit={submit}>
       <label>
-        Username:
+        Email:
         <input
           type="email"
           name="email"
