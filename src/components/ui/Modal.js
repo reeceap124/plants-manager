@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button'
 export default function CustomModal({
   show,
   handleModal,
-  handleSave,
   heading,
   body,
   children
@@ -16,11 +15,11 @@ export default function CustomModal({
           <Modal.Title>{heading}</Modal.Title>
         </Modal.Header>
         <Modal.Body>{body || children}</Modal.Body>
-        <Modal.Footer>
+        {/* <Modal.Footer>
           <Button variant="secondary" onClick={handleModal}>
             Done
           </Button>
-        </Modal.Footer>
+        </Modal.Footer> */}
       </Modal>
     </>
   )
