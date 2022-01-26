@@ -3,7 +3,7 @@ import { useUser } from '../context/UserContext'
 import ListGroup from 'react-bootstrap/ListGroup'
 import axios from 'axios'
 import Modal from './ui/Modal'
-import NewPlant from './forms/NewPlant'
+import NewPlant from './forms/NewInventory'
 
 export default function Dashboard() {
   const [user] = useUser()
@@ -54,8 +54,8 @@ export default function Dashboard() {
           )
         })}
       </ListGroup>
-      <Modal show={showModal} handleModal={handleModal} heading="Modal Heading">
-        <NewPlant userPlants={plants} />
+      <Modal show={showModal} handleModal={handleModal} heading="New Inventory">
+        <NewPlant userPlants={plants} handleClose={handleModal} />
       </Modal>
     </div>
   )
