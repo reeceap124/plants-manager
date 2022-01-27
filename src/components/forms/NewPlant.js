@@ -4,10 +4,7 @@ import Button from 'react-bootstrap/Button'
 import axios from 'axios'
 
 export default function NewPlant(props) {
-  const [plant, setPlant] = useState({
-    common_name: props.plant.common_name,
-    scientific_name: props.plant.scientific_name
-  })
+  const [plant, setPlant] = useState({ ...props.plant })
   const handleChange = (e) => {
     setPlant({ ...plant, [e.target.name]: e.target.value })
   }

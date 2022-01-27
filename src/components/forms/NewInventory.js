@@ -4,12 +4,15 @@ import { useStatus } from '../../context/StatusContext'
 import { usePlants } from '../../context/PlantsContext'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import Collapse from 'react-bootstrap/Collapse'
+import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import CreateableSelect from 'react-select/creatable'
 import NewPlant from './NewPlant'
 import Modal from '../ui/Modal'
+import axios from 'axios'
 
-export default function NewInventory({ userPlants }) {
+export default function NewInventory({ userPlants, setUserPlants }) {
   console.log('user plants', userPlants)
   const [user] = useUser()
   const [statuses] = useStatus()
@@ -26,11 +29,11 @@ export default function NewInventory({ userPlants }) {
   const [ancestry, setAncestry] = useState(undefined)
   const [propagation, setPropagation] = useState(true)
   const plantsRef = useRef(null)
+  const mothersRef = useRef(null)
   const [showPlantModal, setShowPlantModal] = useState(false)
   const [createPlant, setCreatePlant] = useState(undefined)
 
   const handleChanges = (e) => {
-    //need to add some date handling stuff here.
     setInventoryItem({ ...inventoryItem, [e.target.name]: e.target.value })
   }
   const handleModal = (e) => {
@@ -67,16 +70,43 @@ export default function NewInventory({ userPlants }) {
     })
   }
 
+  const formatDate = (date, reverse) => {
+    if (reverse === true) {
+      const [month, day, year] = date.split('-')
+      const setMonth = parseInt(month) - 1
+      const setDate = new Date(year, setMonth, day)
+      return setDate
+    }
+    const [month, day, year] = new Date(new Date(date).getTime())
+      .toLocaleDateString()
+      .split('/')
+    const dateVal = `${year}-${month > 9 ? month : '0' + month}-${
+      day > 9 ? day : '0' + day
+    }`
+    console.log({ dateVal })
+    return dateVal
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const { data } = await axios.post('http://localhost:3300/api/inventory', {
+      plant: inventoryItem,
+      parent: ancestry
+    })
+    console.log('handled submit data', data)
+    setUserPlants(data)
+  }
+
   return (
     // DONE: handle changing selects based between plant and user/propagation issue (doesn't update plant when selecting mother)
-    // TODO: clear mother if plant type changes
+    // DONE: clear mother if plant type changes
     // DONE: reset plant type name when switching
     // DONE: make plant select creatable
-    // TODO: handle date differences
+    // DONE: handle date differences
     // DONE: handle non-propagations (just disable mother select)
-    // STRETCH: Collapse mother select when not using.
+    // DONE: Collapse mother select when not using.
 
-    <Form>
+    <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="plants_key">
         <Form.Label>Plant: </Form.Label>
         <CreateableSelect
@@ -90,7 +120,7 @@ export default function NewInventory({ userPlants }) {
             setInventoryItem({ ...inventoryItem, plants_key: value })
           }}
           onCreateOption={(value) => {
-            setCreatePlant({ [plantLabel]: value })
+            setCreatePlant({ [plantLabel]: value, creator_key: user.id })
             handleModal()
             // set id on state, and name on select
           }}
@@ -125,55 +155,58 @@ export default function NewInventory({ userPlants }) {
           onChange={handleLabel}
         />
       </Form.Group>
+      <Collapse in={propagation}>
+        <Form.Group className="mb-3" controlId="ancestry">
+          <Form.Label>Mother Plant: </Form.Label>
 
-      <Form.Group className="mb-3" controlId="ancestry">
-        <Form.Label>Mother Plant: </Form.Label>
-        {/* if is propagation */}
-        {/* filter by plant if given  */}
-        <Select
-          placeholder={
-            propagation
-              ? 'Which mother is this being propagated from?'
-              : 'Only used for propagations'
+          {propagation && (
+            <Select
+              ref={mothersRef}
+              placeholder={
+                propagation
+                  ? 'Which mother is this being propagated from?'
+                  : 'Only used for propagations'
+              }
+              isDisabled={!propagation}
+              options={userPlants
+                .filter((plant) => plant.status === 'mother')
+                .filter((plant) => {
+                  if (!inventoryItem.plants_key) {
+                    return plant
+                  }
+                  if (inventoryItem.plants_key === plant.plants_key) {
+                    return plant
+                  }
+                })
+                .map((plant) => ({
+                  label: `${plant.common_name} (${plant.id})`,
+                  value: plant
+                }))}
+              onChange={({ value }) => {
+                if (propagation) {
+                  plantsRef.current.selectOption({
+                    label: value[plantLabel],
+                    value: value.plants_key
+                  })
+                  setAncestry(value.ancestry)
+                }
+              }}
+            />
+          )}
+        </Form.Group>
+      </Collapse>
+      <Form.Check
+        type="checkbox"
+        label="Is propagation"
+        checked={propagation}
+        onChange={() => {
+          if (ancestry) {
+            console.log('propagation unchecked', mothersRef.current)
+            setAncestry(undefined)
           }
-          isDisabled={!propagation}
-          options={userPlants
-            .filter((plant) => plant.status === 'mother')
-            .filter((plant) => {
-              if (!inventoryItem.plants_key) {
-                return plant
-              }
-              if (inventoryItem.plants_key === plant.plants_key) {
-                return plant
-              }
-            })
-            .map((plant) => ({
-              label: `${plant.common_name} (${plant.id})`,
-              value: plant
-            }))}
-          onChange={({ value }) => {
-            console.log('ref from mothers click', plantsRef.current)
-            if (propagation) {
-              plantsRef.current.selectOption({
-                label: value[plantLabel],
-                value: value.plants_key
-              })
-              setAncestry(value.ancestry)
-            }
-          }}
-        />
-        <Form.Check
-          type="checkbox"
-          label="Is propagation"
-          checked={propagation}
-          onChange={() => {
-            if (ancestry) {
-              setAncestry(undefined)
-            }
-            setPropagation(!propagation)
-          }}
-        />
-      </Form.Group>
+          setPropagation(!propagation)
+        }}
+      />
       <Form.Group className="mb-3" controlId="status_key">
         <Form.Label>Status: </Form.Label>
         <Select
@@ -199,11 +232,12 @@ export default function NewInventory({ userPlants }) {
 
       <Form.Group className="mb-3" controlId="acquired_date">
         <Form.Label>Acquired Date: </Form.Label>
-        <Form.Control
-          type="date"
-          placeholder="When did this beauty join the collection?"
-          name="acquired_date"
-          onChange={handleChanges}
+        <DatePicker
+          className="form-control"
+          selected={inventoryItem.acquired_date}
+          onChange={(value) =>
+            setInventoryItem({ ...inventoryItem, acquired_date: value })
+          }
         />
       </Form.Group>
 

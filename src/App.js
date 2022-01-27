@@ -1,4 +1,5 @@
 import './App.css'
+import 'react-datepicker/dist/react-datepicker.css'
 import Register from './components/Register'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
@@ -11,6 +12,8 @@ import axios from 'axios'
 import { PlantsProvider } from './context/PlantsContext'
 
 function App() {
+  const token = localStorage.getItem('plantsManagerToken')
+  const user = useState(token ? JSON.parse(atob(token.split('.')[1])) : null)
   const [statuses, setStatuses] = useState([])
   const [plants, setPlants] = useState([])
   const getStatuses = async () => {
@@ -25,7 +28,10 @@ function App() {
 
   const getPlants = async () => {
     try {
-      const { data } = await axios.get('http://localhost:3300/api/plants/')
+      console.log('user here: ', user)
+      const { data } = await axios.get(
+        `http://localhost:3300/api/plants/${user[0]?.id}`
+      )
       console.log('got data', data)
       setPlants(data)
     } catch (error) {
@@ -37,8 +43,6 @@ function App() {
     getPlants()
     getStatuses()
   }, [])
-  const token = localStorage.getItem('plantsManagerToken')
-  const user = useState(token ? JSON.parse(atob(token.split('.')[1])) : null)
   return (
     <div className="App">
       <PlantsProvider plants={[plants, setPlants]}>

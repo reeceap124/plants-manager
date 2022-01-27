@@ -14,6 +14,7 @@ export default function Dashboard() {
     axios
       .get(`http://localhost:3300/api/inventory/all/${user.id}`)
       .then((res) => {
+        console.log('inventory data', res.data)
         setPlants(res.data)
       })
       .catch((error) => console.error('Failed to get users plants', error))
@@ -55,7 +56,11 @@ export default function Dashboard() {
         })}
       </ListGroup>
       <Modal show={showModal} handleModal={handleModal} heading="New Inventory">
-        <NewPlant userPlants={plants} handleClose={handleModal} />
+        <NewPlant
+          userPlants={plants}
+          setUserPlants={(newPlant) => setPlants([...plants, newPlant])}
+          handleClose={handleModal}
+        />
       </Modal>
     </div>
   )
