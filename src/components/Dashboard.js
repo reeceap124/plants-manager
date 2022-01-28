@@ -51,6 +51,8 @@ export default function Dashboard() {
               {plant?.common_name ||
                 plant?.scientific_name ||
                 'No plant name defined'}
+
+              {plant.id ? ` (id: ${plant.id})` : null}
             </ListGroup.Item>
           )
         })}

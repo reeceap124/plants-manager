@@ -12,7 +12,11 @@ import NewPlant from './NewPlant'
 import Modal from '../ui/Modal'
 import axios from 'axios'
 
-export default function NewInventory({ userPlants, setUserPlants }) {
+export default function NewInventory({
+  userPlants,
+  setUserPlants,
+  handleClose
+}) {
   console.log('user plants', userPlants)
   const [user] = useUser()
   const [statuses] = useStatus()
@@ -21,10 +25,10 @@ export default function NewInventory({ userPlants, setUserPlants }) {
   const [inventoryItem, setInventoryItem] = useState({
     plants_key: undefined,
     status_key: undefined,
-    cost: undefined,
+    cost: 0,
     acquired_from: undefined,
     acquired_date: new Date(),
-    user_key: user.id
+    users_key: user.id
   })
   const [ancestry, setAncestry] = useState(undefined)
   const [propagation, setPropagation] = useState(true)
@@ -70,42 +74,17 @@ export default function NewInventory({ userPlants, setUserPlants }) {
     })
   }
 
-  const formatDate = (date, reverse) => {
-    if (reverse === true) {
-      const [month, day, year] = date.split('-')
-      const setMonth = parseInt(month) - 1
-      const setDate = new Date(year, setMonth, day)
-      return setDate
-    }
-    const [month, day, year] = new Date(new Date(date).getTime())
-      .toLocaleDateString()
-      .split('/')
-    const dateVal = `${year}-${month > 9 ? month : '0' + month}-${
-      day > 9 ? day : '0' + day
-    }`
-    console.log({ dateVal })
-    return dateVal
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     const { data } = await axios.post('http://localhost:3300/api/inventory', {
       plant: inventoryItem,
       parent: ancestry
     })
-    console.log('handled submit data', data)
     setUserPlants(data)
+    handleClose()
   }
 
   return (
-    // DONE: handle changing selects based between plant and user/propagation issue (doesn't update plant when selecting mother)
-    // DONE: clear mother if plant type changes
-    // DONE: reset plant type name when switching
-    // DONE: make plant select creatable
-    // DONE: handle date differences
-    // DONE: handle non-propagations (just disable mother select)
-    // DONE: Collapse mother select when not using.
-
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="plants_key">
         <Form.Label>Plant: </Form.Label>
@@ -251,14 +230,6 @@ export default function NewInventory({ userPlants, setUserPlants }) {
           min={0}
         />
       </Form.Group>
-
-      {/* <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Password" />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicCheckbox">
-        <Form.Check type="checkbox" label="Check me out" />
-      </Form.Group> */}
       <Button variant="primary" type="submit">
         Submit
       </Button>
