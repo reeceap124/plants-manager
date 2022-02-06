@@ -19,7 +19,7 @@ export default function NewPlant(props) {
   }
 
   return (
-    <Form onSubmit={submitPlant}>
+    <Form>
       <Form.Group className="mb-3" controlId="common_name">
         <Form.Label>Common Name: </Form.Label>
         <Form.Control
@@ -42,7 +42,9 @@ export default function NewPlant(props) {
         />
       </Form.Group>
 
-      <Button type="submit">Add plant</Button>
+      <Button type="button" onClick={submitPlant}>
+        Add plant
+      </Button>
     </Form>
   )
 }

@@ -2,9 +2,9 @@ import { useState, useRef } from 'react'
 import { useUser } from '../../context/UserContext'
 import { useStatus } from '../../context/StatusContext'
 import { usePlants } from '../../context/PlantsContext'
+import { useMediums } from '../../context/MediumContext'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Collapse from 'react-bootstrap/Collapse'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import CreateableSelect from 'react-select/creatable'
@@ -17,10 +17,10 @@ export default function NewInventory({
   setUserPlants,
   handleClose
 }) {
-  console.log('user plants', userPlants)
   const [user] = useUser()
   const [statuses] = useStatus()
   const [plants, setPlants] = usePlants()
+  const mediums = useMediums()
   const [plantLabel, setPlantLabel] = useState('common_name')
   const [inventoryItem, setInventoryItem] = useState({
     plants_key: undefined,
@@ -28,12 +28,10 @@ export default function NewInventory({
     cost: 0,
     acquired_from: undefined,
     acquired_date: new Date(),
-    users_key: user.id
+    users_key: user.id,
+    medium_key: undefined
   })
-  const [ancestry, setAncestry] = useState(undefined)
-  const [propagation, setPropagation] = useState(true)
   const plantsRef = useRef(null)
-  const mothersRef = useRef(null)
   const [showPlantModal, setShowPlantModal] = useState(false)
   const [createPlant, setCreatePlant] = useState(undefined)
 
@@ -77,8 +75,7 @@ export default function NewInventory({
   const handleSubmit = async (e) => {
     e.preventDefault()
     const { data } = await axios.post('http://localhost:3300/api/inventory', {
-      plant: inventoryItem,
-      parent: ancestry
+      plant: inventoryItem
     })
     setUserPlants(data)
     handleClose()
@@ -95,7 +92,6 @@ export default function NewInventory({
             value: plant.id
           }))}
           onChange={({ value }) => {
-            console.log('value to change', value)
             setInventoryItem({ ...inventoryItem, plants_key: value })
           }}
           onCreateOption={(value) => {
@@ -134,58 +130,6 @@ export default function NewInventory({
           onChange={handleLabel}
         />
       </Form.Group>
-      <Collapse in={propagation}>
-        <Form.Group className="mb-3" controlId="ancestry">
-          <Form.Label>Mother Plant: </Form.Label>
-
-          {propagation && (
-            <Select
-              ref={mothersRef}
-              placeholder={
-                propagation
-                  ? 'Which mother is this being propagated from?'
-                  : 'Only used for propagations'
-              }
-              isDisabled={!propagation}
-              options={userPlants
-                .filter((plant) => plant.status === 'mother')
-                .filter((plant) => {
-                  if (!inventoryItem.plants_key) {
-                    return plant
-                  }
-                  if (inventoryItem.plants_key === plant.plants_key) {
-                    return plant
-                  }
-                })
-                .map((plant) => ({
-                  label: `${plant.common_name} (${plant.id})`,
-                  value: plant
-                }))}
-              onChange={({ value }) => {
-                if (propagation) {
-                  plantsRef.current.selectOption({
-                    label: value[plantLabel],
-                    value: value.plants_key
-                  })
-                  setAncestry(value.ancestry)
-                }
-              }}
-            />
-          )}
-        </Form.Group>
-      </Collapse>
-      <Form.Check
-        type="checkbox"
-        label="Is propagation"
-        checked={propagation}
-        onChange={() => {
-          if (ancestry) {
-            console.log('propagation unchecked', mothersRef.current)
-            setAncestry(undefined)
-          }
-          setPropagation(!propagation)
-        }}
-      />
       <Form.Group className="mb-3" controlId="status_key">
         <Form.Label>Status: </Form.Label>
         <Select
@@ -228,6 +172,19 @@ export default function NewInventory({
           name="cost"
           onChange={handleChanges}
           min={0}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="medium_key">
+        <Form.Label>Growing Medium: </Form.Label>
+        <Select
+          options={mediums.map(({ medium, id }) => ({
+            label: medium,
+            value: id
+          }))}
+          onChange={({ value }) =>
+            setInventoryItem({ ...inventoryItem, medium_key: value })
+          }
         />
       </Form.Group>
       <Button variant="primary" type="submit">

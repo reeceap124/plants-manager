@@ -10,29 +10,38 @@ import AuthRoute from './components/AuthRoute'
 import { StatusProvider } from './context/StatusContext'
 import axios from 'axios'
 import { PlantsProvider } from './context/PlantsContext'
+import { MediumProvider } from './context/MediumContext'
 
 function App() {
   const token = localStorage.getItem('plantsManagerToken')
   const user = useState(token ? JSON.parse(atob(token.split('.')[1])) : null)
   const [statuses, setStatuses] = useState([])
   const [plants, setPlants] = useState([])
+  const [mediums, setMediums] = useState([])
+  const getMediums = async () => {
+    try {
+      const { data } = await axios.get(
+        'http://localhost:3300/api/talk-to-ghosts/'
+      )
+      setMediums(data)
+    } catch (error) {
+      console.error('Error getting mediums', error)
+    }
+  }
   const getStatuses = async () => {
     try {
       const { data } = await axios.get('http://localhost:3300/api/statuses/')
       setStatuses(data)
     } catch (error) {
       console.error('Error getting statuses', error)
-      setStatuses([])
     }
   }
 
   const getPlants = async () => {
     try {
-      console.log('user here: ', user)
       const { data } = await axios.get(
         `http://localhost:3300/api/plants/${user[0]?.id}`
       )
-      console.log('got data', data)
       setPlants(data)
     } catch (error) {
       console.error('Error getting plants', error)
@@ -40,33 +49,36 @@ function App() {
     }
   }
   useEffect(() => {
+    getMediums()
     getPlants()
     getStatuses()
-  }, [])
+  })
   return (
     <div className="App">
-      <PlantsProvider plants={[plants, setPlants]}>
-        <StatusProvider statuses={[statuses, setStatuses]}>
-          <UserProvider user={user}>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+      <MediumProvider mediums={mediums}>
+        <PlantsProvider plants={[plants, setPlants]}>
+          <StatusProvider statuses={[statuses, setStatuses]}>
+            <UserProvider user={user}>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
 
-            <Routes>
-              <Route
-                exact
-                path="/dashboard"
-                element={
-                  <AuthRoute>
-                    <Dashboard />
-                  </AuthRoute>
-                }
-              />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-            </Routes>
-          </UserProvider>
-        </StatusProvider>
-      </PlantsProvider>
+              <Routes>
+                <Route
+                  exact
+                  path="/dashboard"
+                  element={
+                    <AuthRoute>
+                      <Dashboard />
+                    </AuthRoute>
+                  }
+                />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Routes>
+            </UserProvider>
+          </StatusProvider>
+        </PlantsProvider>
+      </MediumProvider>
     </div>
   )
 }
