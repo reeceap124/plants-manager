@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import Card from 'react-bootstrap/Card'
+import Button from 'react-bootstrap/Button'
 import axios from 'axios'
 import Modal from './ui/Modal'
 import NewPlant from './forms/NewInventory'
+import NewPropagation from './forms/NewPropagation'
 
 export default function Dashboard() {
   const [user] = useUser()
   const [plants, setPlants] = useState([])
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(undefined)
+  const [propState, setPropState] = useState(undefined)
 
   useEffect(() => {
     axios
@@ -20,7 +23,10 @@ export default function Dashboard() {
   }, [user])
   const handleModal = (e) => {
     e?.preventDefault()
-    setShowModal(!showModal)
+    if (!e?.target?.attributes?.modalval?.value) {
+      setPropState(undefined)
+    }
+    setShowModal(e?.target?.attributes?.modalval?.value)
   }
 
   // filterVals.map((val) => {
@@ -42,7 +48,13 @@ export default function Dashboard() {
   return (
     <div style={{ padding: '2rem' }}>
       <h2>{user.username} Plant Manager</h2>
-      <button onClick={handleModal}>Show Modal</button>
+      <button
+        name="new inventory"
+        modalval="new inventory"
+        onClick={handleModal}
+      >
+        Add New Inventory
+      </button>
 
       <div
         style={{
@@ -53,12 +65,7 @@ export default function Dashboard() {
       >
         {plants.map((plant, index) => {
           return (
-            <Card
-              key={index}
-              onClick={() =>
-                console.log('Clicked card: ', plant.common_name, plant.id)
-              }
-            >
+            <Card key={index}>
               <Card.Body>
                 <Card.Title>
                   {plant?.common_name || plant?.scientific_name}
@@ -69,14 +76,41 @@ export default function Dashboard() {
                   Notes: {plant?.notes || 'No notes given for this plant'}
                 </Card.Text>
               </Card.Body>
+              <Card.Footer>
+                <Button
+                  modalval="new propagation"
+                  onClick={(e) => {
+                    console.log('clicked em')
+                    setPropState(plant)
+                    handleModal(e)
+                  }}
+                >
+                  Add Propagations
+                </Button>
+              </Card.Footer>
             </Card>
           )
         })}
       </div>
-      <Modal show={showModal} handleModal={handleModal} heading="New Inventory">
+      <Modal
+        show={showModal === 'new inventory'}
+        handleModal={handleModal}
+        heading="New Inventory"
+      >
         <NewPlant
           userPlants={plants}
           setUserPlants={(newPlant) => setPlants([...plants, newPlant])}
+          handleClose={handleModal}
+        />
+      </Modal>
+      <Modal
+        show={showModal === 'new propagation'}
+        handleModal={handleModal}
+        heading="New Propagation"
+      >
+        <NewPropagation
+          handleClose={handleModal}
+          propState={[propState, setPropState]}
           handleClose={handleModal}
         />
       </Modal>

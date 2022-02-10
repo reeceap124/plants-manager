@@ -52,7 +52,8 @@ function App() {
     getMediums()
     getPlants()
     getStatuses()
-  })
+    console.log('Setup')
+  }, [])
   return (
     <div className="App">
       <MediumProvider mediums={mediums}>
