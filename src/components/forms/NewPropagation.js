@@ -4,12 +4,13 @@ import Button from 'react-bootstrap/Button'
 import Select from 'react-select'
 import DatePicker from 'react-datepicker'
 import { useStatus, useMediums } from '../../context'
+import axios from 'axios'
 
 export default function NewPropagation(props) {
   const [toProp, setToProp] = props.propState
   const [statuses] = useStatus()
-  console.log({ statuses })
   const mediums = useMediums()
+  const [submitted, setSubmitted] = useState([])
   const [plantVals, setPlantVals] = useState({
     parent: toProp?.id,
     plants_key: toProp?.plants_key,
@@ -20,10 +21,30 @@ export default function NewPropagation(props) {
     users_key: toProp?.users_key,
     medium_key: undefined
   })
-  console.log('new props', toProp)
+  const [count, setCount] = useState(0)
+
   if (!toProp) return null
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const { parent, plants_key, status_key, users_key, medium_key } = plantVals
+    if (!(parent && plants_key && status_key && users_key && medium_key)) {
+      return console.error('Need valid info to submit')
+    }
+    for (let i = 1; i <= count; i++) {
+      const { data } = await axios.post('http://localhost:3300/api/inventory', {
+        plant: plantVals
+      })
+      setSubmitted([...submitted, data])
+      console.log('submitted: ', i)
+    }
+
+    setToProp(undefined)
+    props.handleClose(undefined)
+  }
+
   return (
-    <Form>
+    <Form onSubmit={handleSubmit}>
       <p>
         Plant: {toProp.common_name} / {toProp.scientific_name}
       </p>
@@ -44,7 +65,7 @@ export default function NewPropagation(props) {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="acquired_date">
-        <Form.Label>Acquired Date: </Form.Label>
+        <Form.Label>Propagation Date: </Form.Label>
         <DatePicker
           className="form-control"
           selected={plantVals.acquired_date}
@@ -66,6 +87,23 @@ export default function NewPropagation(props) {
           }
         />
       </Form.Group>
+
+      <Form.Group className="mb-3" controlId="count">
+        <Form.Label>Count: </Form.Label>
+        <Form.Control
+          type="number"
+          placeholder="Number propagated?"
+          name="count"
+          onChange={(e) => {
+            setCount(e.target.value)
+          }}
+          min={0}
+          max={20}
+        />
+      </Form.Group>
+      <Button variant="primary" type="submit">
+        Submit
+      </Button>
     </Form>
   )
 }
