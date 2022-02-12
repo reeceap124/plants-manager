@@ -52,13 +52,15 @@ export default function NewPropagation(props) {
   return (
     <Form onSubmit={handleSubmit}>
       <p>
-        Plant: {toProp.common_name} / {toProp.scientific_name}
+        {'Plant \n'} {toProp.common_name} / {toProp.scientific_name}
       </p>
-      <p>Mother Id: {toProp.id}</p>
+      <p>
+        {'Mother Id \n'} {toProp.id}
+      </p>
       <Form.Group className="mb-3" controlId="plants_key"></Form.Group>
 
       <Form.Group className="mb-3" controlId="status_key">
-        <Form.Label>Status: </Form.Label>
+        <Form.Label>Status </Form.Label>
         <Select
           options={statuses.map((status) => ({
             label: status.status,
@@ -71,7 +73,7 @@ export default function NewPropagation(props) {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="acquired_date">
-        <Form.Label>Propagation Date: </Form.Label>
+        <Form.Label>Propagation Date </Form.Label>
         <DatePicker
           className="form-control"
           selected={plantVals.acquired_date}
@@ -82,7 +84,7 @@ export default function NewPropagation(props) {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="medium_key">
-        <Form.Label>Growing Medium: </Form.Label>
+        <Form.Label>Growing Medium </Form.Label>
         <Select
           options={mediums.map(({ medium, id }) => ({
             label: medium,
@@ -95,7 +97,7 @@ export default function NewPropagation(props) {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="count">
-        <Form.Label>Count: </Form.Label>
+        <Form.Label>Count </Form.Label>
         <Form.Control
           type="number"
           placeholder="Number propagated?"

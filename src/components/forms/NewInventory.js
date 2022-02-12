@@ -11,6 +11,8 @@ import CreateableSelect from 'react-select/creatable'
 import NewPlant from './NewPlant'
 import Modal from '../ui/Modal'
 import axios from 'axios'
+import Tooltip from 'react-bootstrap/Tooltip'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 
 export default function NewInventory({
   userPlants,
@@ -34,7 +36,7 @@ export default function NewInventory({
   const plantsRef = useRef(null)
   const [showPlantModal, setShowPlantModal] = useState(false)
   const [createPlant, setCreatePlant] = useState(undefined)
-
+  const [potentialCreate, setPotentialCreate] = useState('')
   const handleChanges = (e) => {
     setInventoryItem({ ...inventoryItem, [e.target.name]: e.target.value })
   }
@@ -84,22 +86,39 @@ export default function NewInventory({
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="plants_key">
-        <Form.Label>Plant: </Form.Label>
-        <CreateableSelect
-          ref={plantsRef}
-          options={plants.map((plant) => ({
-            label: plant[plantLabel],
-            value: plant.id
-          }))}
-          onChange={({ value }) => {
-            setInventoryItem({ ...inventoryItem, plants_key: value })
-          }}
-          onCreateOption={(value) => {
-            setCreatePlant({ [plantLabel]: value, creator_key: user.id })
-            handleModal()
-            // set id on state, and name on select
-          }}
-        />
+        <Form.Label>Plant </Form.Label>
+        <OverlayTrigger
+          placement="top-end"
+          delay={{ show: 250 }}
+          overlay={(tprops) => (
+            <Tooltip {...tprops}>{`Type in a ${plantLabel.replace(
+              '_',
+              ' '
+            )} and select 'Create "${
+              potentialCreate.trim().length ? potentialCreate : '<new>'
+            }"'`}</Tooltip>
+          )}
+        >
+          <CreateableSelect
+            ref={plantsRef}
+            blurInputOnSelect={true}
+            onInputChange={(val) => setPotentialCreate(val)}
+            placeholder={`Select existing or add new`}
+            createOptionPosition="first"
+            options={plants.map((plant) => ({
+              label: plant[plantLabel],
+              value: plant.id
+            }))}
+            onChange={({ value }) => {
+              setInventoryItem({ ...inventoryItem, plants_key: value })
+            }}
+            onCreateOption={(value) => {
+              setCreatePlant({ [plantLabel]: value, creator_key: user.id })
+              handleModal()
+              // set id on state, and name on select
+            }}
+          />
+        </OverlayTrigger>
         <Modal
           show={showPlantModal}
           heading="Create New Plant"
@@ -131,7 +150,7 @@ export default function NewInventory({
         />
       </Form.Group>
       <Form.Group className="mb-3" controlId="status_key">
-        <Form.Label>Status: </Form.Label>
+        <Form.Label>Status </Form.Label>
         <Select
           options={statuses.map((status) => ({
             label: status.status,
@@ -144,7 +163,7 @@ export default function NewInventory({
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="acquired_from">
-        <Form.Label>Acquired from: </Form.Label>
+        <Form.Label>Acquired from </Form.Label>
         <Form.Control
           type="text"
           placeholder="Where'd that come from?"
@@ -154,7 +173,7 @@ export default function NewInventory({
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="acquired_date">
-        <Form.Label>Acquired Date: </Form.Label>
+        <Form.Label>Acquired Date </Form.Label>
         <DatePicker
           className="form-control"
           selected={inventoryItem.acquired_date}
@@ -176,7 +195,7 @@ export default function NewInventory({
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="medium_key">
-        <Form.Label>Growing Medium: </Form.Label>
+        <Form.Label>Growing Medium </Form.Label>
         <Select
           options={mediums.map(({ medium, id }) => ({
             label: medium,
