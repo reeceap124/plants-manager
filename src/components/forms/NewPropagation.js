@@ -10,7 +10,6 @@ export default function NewPropagation(props) {
   const [toProp, setToProp] = props.propState
   const [statuses] = useStatus()
   const mediums = useMediums()
-  const [submitted, setSubmitted] = useState([])
   const [plantVals, setPlantVals] = useState({
     parent: toProp?.id,
     plants_key: toProp?.plants_key,
@@ -31,14 +30,21 @@ export default function NewPropagation(props) {
     if (!(parent && plants_key && status_key && users_key && medium_key)) {
       return console.error('Need valid info to submit')
     }
-    for (let i = 1; i <= count; i++) {
-      const { data } = await axios.post('http://localhost:3300/api/inventory', {
-        plant: plantVals
+    const subArr = new Array(parseInt(count)).fill(0)
+    console.log({ subArr })
+    const submittedResults = await Promise.all(
+      subArr.map(async (val) => {
+        const { data } = await axios.post(
+          'http://localhost:3300/api/inventory',
+          {
+            plant: plantVals
+          }
+        )
+        return data
       })
-      setSubmitted([...submitted, data])
-      console.log('submitted: ', i)
-    }
-
+    )
+    console.log('submitted results here', submittedResults)
+    props.setUserPlants(submittedResults)
     setToProp(undefined)
     props.handleClose(undefined)
   }

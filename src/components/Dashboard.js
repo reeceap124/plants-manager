@@ -111,7 +111,7 @@ export default function Dashboard() {
         <NewPropagation
           handleClose={handleModal}
           propState={[propState, setPropState]}
-          handleClose={handleModal}
+          setUserPlants={(newPlants) => setPlants([...plants, ...newPlants])}
         />
       </Modal>
     </div>
