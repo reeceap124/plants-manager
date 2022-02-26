@@ -1,4 +1,4 @@
-import './App.css'
+import './App.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import Register from './components/Register'
 import Login from './components/Login'

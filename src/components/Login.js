@@ -6,7 +6,6 @@ export default function Login() {
   let navigate = useNavigate()
   const defaultCreds = { email: '', password: '' }
   const [credentials, setCredentials] = useState(defaultCreds)
-  const [showPassword, setShowPassword] = useState(false)
   const handleChange = (e) =>
     setCredentials({ ...credentials, [e.target.name]: e.target.value })
 

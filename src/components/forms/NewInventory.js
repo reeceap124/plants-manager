@@ -9,10 +9,8 @@ import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import CreateableSelect from 'react-select/creatable'
 import NewPlant from './NewPlant'
-import Modal from '../ui/Modal'
+import Modal from '../../ui/Modal'
 import axios from 'axios'
-import Tooltip from 'react-bootstrap/Tooltip'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 
 export default function NewInventory({
   userPlants,
@@ -31,12 +29,13 @@ export default function NewInventory({
     acquired_from: undefined,
     acquired_date: new Date(),
     users_key: user.id,
-    medium_key: undefined
+    medium_key: undefined,
+    notes: undefined
   })
   const plantsRef = useRef(null)
   const [showPlantModal, setShowPlantModal] = useState(false)
   const [createPlant, setCreatePlant] = useState(undefined)
-  const [potentialCreate, setPotentialCreate] = useState('')
+
   const handleChanges = (e) => {
     setInventoryItem({ ...inventoryItem, [e.target.name]: e.target.value })
   }
@@ -68,7 +67,7 @@ export default function NewInventory({
     setCreatePlant(newPlant)
     setPlants([...plants, newPlant])
     setInventoryItem({ ...inventoryItem, plants_key: newPlant.id })
-    plantsRef.current.selectOption({
+    plantsRef?.current?.selectOption({
       label: newPlant[plantLabel],
       value: newPlant.id
     })
@@ -87,38 +86,22 @@ export default function NewInventory({
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="plants_key">
         <Form.Label>Plant </Form.Label>
-        <OverlayTrigger
-          placement="top-end"
-          delay={{ show: 250 }}
-          overlay={(tprops) => (
-            <Tooltip {...tprops}>{`Type in a ${plantLabel.replace(
-              '_',
-              ' '
-            )} and select 'Create "${
-              potentialCreate.trim().length ? potentialCreate : '<new>'
-            }"'`}</Tooltip>
-          )}
-        >
-          <CreateableSelect
-            ref={plantsRef}
-            blurInputOnSelect={true}
-            onInputChange={(val) => setPotentialCreate(val)}
-            placeholder={`Select existing or add new`}
-            createOptionPosition="first"
-            options={plants.map((plant) => ({
-              label: plant[plantLabel],
-              value: plant.id
-            }))}
-            onChange={({ value }) => {
-              setInventoryItem({ ...inventoryItem, plants_key: value })
-            }}
-            onCreateOption={(value) => {
-              setCreatePlant({ [plantLabel]: value, creator_key: user.id })
-              handleModal()
-              // set id on state, and name on select
-            }}
-          />
-        </OverlayTrigger>
+        <CreateableSelect
+          ref={plantsRef}
+          placeholder={`Select existing or add new`}
+          createOptionPosition="first"
+          options={plants.map((plant) => ({
+            label: plant[plantLabel],
+            value: plant.id
+          }))}
+          onChange={({ value }) => {
+            setInventoryItem({ ...inventoryItem, plants_key: value })
+          }}
+          onCreateOption={(value) => {
+            setCreatePlant({ [plantLabel]: value, creator_key: user.id })
+            handleModal()
+          }}
+        />
         <Modal
           show={showPlantModal}
           heading="Create New Plant"
@@ -206,6 +189,18 @@ export default function NewInventory({
           }
         />
       </Form.Group>
+
+      <Form.Group className="mb-3" controlId="notes">
+        <Form.Label>Notes </Form.Label>
+        <Form.Control
+          as="textarea"
+          placeholder="Anything to add about this?"
+          name="notes"
+          rows={3}
+          onChange={handleChanges}
+        />
+      </Form.Group>
+
       <Button variant="primary" type="submit">
         Submit
       </Button>

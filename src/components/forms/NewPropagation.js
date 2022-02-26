@@ -18,7 +18,8 @@ export default function NewPropagation(props) {
     acquired_from: 'propagation',
     acquired_date: new Date(),
     users_key: toProp?.users_key,
-    medium_key: undefined
+    medium_key: undefined,
+    notes: undefined
   })
   const [count, setCount] = useState(0)
 
@@ -109,6 +110,20 @@ export default function NewPropagation(props) {
           max={20}
         />
       </Form.Group>
+
+      <Form.Group className="mb-3" controlId="notes">
+        <Form.Label>Notes </Form.Label>
+        <Form.Control
+          as="textarea"
+          placeholder="Any notes?"
+          name="notes"
+          rows={3}
+          onChange={(e) =>
+            setPlantVals({ ...plantVals, notes: e.target.value })
+          }
+        />
+      </Form.Group>
+
       <Button variant="primary" type="submit">
         Submit
       </Button>

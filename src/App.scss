@@ -28,6 +28,38 @@
   color: #61dafb;
 }
 
+.plantsCardWrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.newInventoryButton.btn.btn-primary {
+  border-radius: 50%;
+}
+.adjHeight.offcanvas-top {
+  height: fit-content !important;
+}
+
+.filterCategory {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+  border-bottom: 1px solid lightgray;
+  margin-bottom: 1rem;
+}
+.filterCategory__limitHeight {
+  max-height: 20vh;
+  overflow: auto;
+}
+.filterItem {
+  display: flex;
+  align-items: center;
+  p {
+    margin: 0;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
