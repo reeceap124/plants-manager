@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
-import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
-import OffCanvas from 'react-bootstrap/Offcanvas'
-// import Badge from 'react-bootstrap/Badge'
 import axios from 'axios'
 import Modal from '../ui/Modal'
 import NewPlant from './forms/NewInventory'
 import NewPropagation from './forms/NewPropagation'
+import UpdateInventory from './forms/UpdateInventory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faFilter } from '@fortawesome/free-solid-svg-icons'
 import Filters from './forms/Filters'
+import PlantsList from './PlantsList'
 
 export default function Dashboard() {
   const [user] = useUser()
@@ -22,7 +21,7 @@ export default function Dashboard() {
   })
   const [filteredPlants, setFilteredPlants] = useState([])
   const [showModal, setShowModal] = useState(undefined)
-  const [propState, setPropState] = useState(undefined)
+  const [targetValue, setTargetValue] = useState(undefined)
   useEffect(() => {
     axios
       .get(`http://localhost:3300/api/inventory/all/${user.id}`)
@@ -45,7 +44,7 @@ export default function Dashboard() {
   const handleModal = (e) => {
     e?.preventDefault()
     if (!e?.target?.attributes?.modalval?.value) {
-      setPropState(undefined)
+      setTargetValue(undefined)
     }
     setShowModal(e?.target?.attributes?.modalval?.value)
   }
@@ -57,8 +56,13 @@ export default function Dashboard() {
 
   /*
   Needs to:
+  - Logout
+
+  - Images
+
   - Crud on individual plants
   - Get cost/profit on original mothers
+  - Record sales 
 
   Filter Options:
   - Name
@@ -69,48 +73,45 @@ export default function Dashboard() {
   return (
     <div style={{ padding: '2rem' }}>
       <h2>{user.username} Plant Manager</h2>
-      <Button
-        name="new inventory"
-        modalval="new inventory"
-        onClick={handleModal}
-        className="newInventoryButton"
-      >
-        <FontAwesomeIcon icon={faPlus} />
-      </Button>
-      <Button name="filters" modalval="filters" onClick={handleModal}>
-        Filter
-      </Button>
+      <div className="menuWrapper">
+        <Button
+          name="new inventory"
+          modalval="new inventory"
+          onClick={handleModal}
+        >
+          <FontAwesomeIcon icon={faPlus} />
+        </Button>
 
-      <div className="plantsCardWrapper">
-        {filteredPlants.map((plant, index) => {
-          return (
-            <Card key={index}>
-              <Card.Body>
-                <Card.Title>
-                  {plant?.common_name || plant?.scientific_name}
-                  <span> {plant.id}</span>
-                </Card.Title>
-
-                <Card.Text>
-                  Notes: {plant?.notes || 'No notes given for this plant'}
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <Button
-                  modalval="new propagation"
-                  onClick={(e) => {
-                    console.log('clicked em')
-                    setPropState(plant)
-                    handleModal(e)
-                  }}
-                >
-                  Add Propagations
-                </Button>
-              </Card.Footer>
-            </Card>
-          )
-        })}
+        <Button name="filters" modalval="filters" onClick={handleModal}>
+          <FontAwesomeIcon icon={faFilter} />
+        </Button>
       </div>
+
+      <PlantsList
+        filteredPlants={filteredPlants}
+        handleModal={handleModal}
+        setPropState={setTargetValue}
+      />
+
+      <Modal
+        show={showModal === 'update inventory'}
+        handleModal={handleModal}
+        heading="Update Inventory"
+      >
+        <UpdateInventory
+          handleClose={handleModal}
+          update={targetValue}
+          setUserPlants={(updated) =>
+            setPlants(
+              plants.map((p) => {
+                if (p.id === updated.id) return updated
+                return p
+              })
+            )
+          }
+        />
+      </Modal>
+
       <Modal
         show={showModal === 'new inventory'}
         handleModal={handleModal}
@@ -122,6 +123,7 @@ export default function Dashboard() {
           handleClose={handleModal}
         />
       </Modal>
+
       <Modal
         show={showModal === 'new propagation'}
         handleModal={handleModal}
@@ -129,7 +131,7 @@ export default function Dashboard() {
       >
         <NewPropagation
           handleClose={handleModal}
-          propState={[propState, setPropState]}
+          propState={[targetValue, setTargetValue]}
           setUserPlants={(newPlants) => setPlants([...plants, ...newPlants])}
         />
       </Modal>

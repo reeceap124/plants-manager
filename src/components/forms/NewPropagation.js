@@ -32,7 +32,6 @@ export default function NewPropagation(props) {
       return console.error('Need valid info to submit')
     }
     const subArr = new Array(parseInt(count)).fill(0)
-    console.log({ subArr })
     const submittedResults = await Promise.all(
       subArr.map(async (val) => {
         const { data } = await axios.post(
@@ -44,7 +43,6 @@ export default function NewPropagation(props) {
         return data
       })
     )
-    console.log('submitted results here', submittedResults)
     props.setUserPlants(submittedResults)
     setToProp(undefined)
     props.handleClose(undefined)
@@ -58,7 +56,6 @@ export default function NewPropagation(props) {
       <p>
         {'Mother Id \n'} {toProp.id}
       </p>
-      <Form.Group className="mb-3" controlId="plants_key"></Form.Group>
 
       <Form.Group className="mb-3" controlId="status_key">
         <Form.Label>Status </Form.Label>

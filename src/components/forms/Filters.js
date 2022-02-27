@@ -7,11 +7,6 @@ export default function Filters(props) {
   const [plants] = usePlants()
   const [statuses] = useStatus()
   const mediums = useMediums()
-  const [filters, setFilters] = useState({
-    plants,
-    statuses,
-    mediums
-  })
   const [search, setSearch] = useState('')
   const hasFilterValue = (filter, value) =>
     appliedFilters[filter].includes(value)
