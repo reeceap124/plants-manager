@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import { useMediums, useStatus } from '../../context'
+import Sales from '../forms/Sale'
 
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import Collapse from 'react-bootstrap/Collapse'
 import Select from 'react-select'
 import DatePicker from 'react-datepicker'
 import axios from 'axios'
 
 export default function UpdateInventory(props) {
   const target = props?.update
-
   const [toUpdate, setToUpdate] = useState({
     status_key: target?.status_key,
     medium_key: target?.medium_key,
@@ -18,24 +19,34 @@ export default function UpdateInventory(props) {
     acquired_date: target?.acquired_date,
     acquired_from: target?.acquired_from
   })
+  const [sale, setSale] = useState(undefined)
   const [statuses] = useStatus()
   const mediums = useMediums()
-
-  if (!toUpdate) return null
-  console.log({ toUpdate })
-
+  // need to handle resetting state if clicking off of sold status
   const handleSubmit = async (e) => {
+    // if sold then send sale info with submission. handle sale on backend
     e.preventDefault()
     if (!target?.id) return
-    console.log('submitted update')
     const { data } = await axios.patch(
       'http://localhost:3300/api/inventory/' + target.id,
       toUpdate
     )
+    if (sale) {
+      console.log('sale data to be submitte', sale)
+      try {
+        const { data: saleData } = await axios.post(
+          'http://localhost:3300/api/sales',
+          sale
+        )
+        console.log('submitted sale data', saleData)
+      } catch (error) {
+        console.error('sale data failed', error)
+      }
+    }
     props.setUserPlants(data[0])
     props.handleClose()
   }
-
+  if (!toUpdate) return null
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="status_key">
@@ -55,6 +66,17 @@ export default function UpdateInventory(props) {
           }
         />
       </Form.Group>
+
+      <Collapse
+        in={
+          toUpdate.status_key ===
+          statuses.filter((s) => s.status === 'sold')[0]?.id
+        }
+      >
+        <div>
+          <Sales sale={sale} setSale={setSale} inventory_key={target?.id} />
+        </div>
+      </Collapse>
 
       <Form.Group className="mb-3" controlId="medium_key">
         <Form.Label>Growing Medium </Form.Label>

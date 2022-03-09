@@ -60,14 +60,15 @@ export default function Dashboard() {
 
   - Images
 
-  - Crud on individual plants
+  - Handle Sales
+
+  x Cru(d) on individual plants
   - Get cost/profit on original mothers
-  - Record sales 
 
   Filter Options:
-  - Name
-  - Plant
-  - Status
+  x Name
+  x Plant
+  x Status
   - Ancestry???
   */
   return (
