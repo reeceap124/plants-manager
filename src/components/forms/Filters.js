@@ -46,7 +46,7 @@ export default function Filters(props) {
             )
             .map((p) => {
               return (
-                <div className="filterItem">
+                <div key={p.id} className="filterItem">
                   <Form.Check
                     type="switch"
                     checked={hasFilterValue('plants_key', p.id)}
@@ -68,7 +68,7 @@ export default function Filters(props) {
         <div className="filterCategory">
           {mediums.map((m) => {
             return (
-              <div className="filterItem">
+              <div className="filterItem" key={m.id}>
                 <Form.Check
                   type="switch"
                   checked={hasFilterValue('medium_key', m.id)}
@@ -86,7 +86,7 @@ export default function Filters(props) {
         <div className="filterCategory">
           {statuses.map((s) => {
             return (
-              <div className="filterItem">
+              <div className="filterItem" key={s.id}>
                 <Form.Check
                   type="switch"
                   checked={hasFilterValue('status_key', s.id)}

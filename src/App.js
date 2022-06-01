@@ -52,7 +52,7 @@ function App() {
     getMediums()
     getPlants()
     getStatuses()
-    console.log('Setup')
+    console.log('setup')
   }, [])
   return (
     <div className="App">
@@ -73,6 +73,7 @@ function App() {
                     </AuthRoute>
                   }
                 />
+                <Route exact path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
               </Routes>

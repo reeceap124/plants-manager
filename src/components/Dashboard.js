@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 import Button from 'react-bootstrap/Button'
 import axios from 'axios'
@@ -7,7 +8,11 @@ import NewPlant from './forms/NewInventory'
 import NewPropagation from './forms/NewPropagation'
 import UpdateInventory from './forms/UpdateInventory'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faFilter } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPlus,
+  faFilter,
+  faArrowRightFromBracket as logout
+} from '@fortawesome/free-solid-svg-icons'
 import Filters from './forms/Filters'
 import PlantsList from './PlantsList'
 
@@ -49,23 +54,22 @@ export default function Dashboard() {
     setShowModal(e?.target?.attributes?.modalval?.value)
   }
 
-  // filterVals.map((val) => {
-  //   const opts = [...new Set(plants.map((p) => p[val]))]
-  //   return <Select options={opts} />
-  // })
-
   /*
   Needs to:
-  - Logout
-
   - Images
 
-  - Handle Sales
+  - Look at it from view of plants (i.e. how many of that type of plant there are)
+  - Look at
 
   x Cru(d) on individual plants
   - Get cost/profit on original mothers
+    - Find all plants that are original mothers/purchase
+    - Find all children from that
+    - Find all sales of children
+
 
   Filter Options:
+  - Original purchase
   x Name
   x Plant
   x Status
@@ -86,6 +90,16 @@ export default function Dashboard() {
         <Button name="filters" modalval="filters" onClick={handleModal}>
           <FontAwesomeIcon icon={faFilter} />
         </Button>
+        <Link to="/login">
+          <Button
+            name="logout"
+            onClick={() => {
+              localStorage.removeItem('plantsManagerToken')
+            }}
+          >
+            <FontAwesomeIcon icon={logout} />
+          </Button>
+        </Link>
       </div>
 
       <PlantsList

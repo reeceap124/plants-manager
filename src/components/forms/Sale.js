@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../../context'
 import Form from 'react-bootstrap/Form'
-// import Button from 'react-bootstrap/Button'
 import DatePicker from 'react-datepicker'
 import CreateableSelect from 'react-select/creatable'
 import axios from 'axios'
 
-export default function Sales(props) {
+export default function Sales({ inventory_key, ...props }) {
   const [user] = useUser()
   const [saleData, setSaleData] = useState({
     venue_key: undefined,
-    sale_amount: undefined,
-    tax_amount: undefined,
-    inventory_key: props?.inventory_key,
+    sale_amount: 0,
+    tax_amount: 0,
+    inventory_key: inventory_key || '',
     sale_date: new Date(),
     shipping_amount: 0,
     shipped: false
@@ -27,12 +26,30 @@ export default function Sales(props) {
       .catch((error) => console.error('failed to get venues', error))
   }, [user.id])
 
+  const getItemSale = (id) => {
+    if (!id) {
+      return
+    }
+    axios
+      .get(`http://localhost:3300/api/sales/inventory_key/${id}`)
+      .then(({ data }) => {
+        if (data?.length) {
+          return
+        }
+        setSale({
+          ...data[0],
+          sale_date: new Date(data[0]?.sale_date || new Date())
+        })
+      })
+      .catch((error) => console.error('failed to get sale', error))
+  }
+
   useEffect(() => {
-    console.log('updating sale info')
-    setSale(sale)
-  }, [sale, setSale])
+    getItemSale(inventory_key)
+  }, [inventory_key])
 
   function handleChanges(e) {
+    e.preventDefault()
     setSale({
       ...sale,
       [e.target.name]: e.target.value
@@ -61,6 +78,11 @@ export default function Sales(props) {
             setVenues([...venues, data])
             return { label: data.name, value: data.id }
           }}
+          value={
+            venues
+              .filter((v) => v.id === sale.venue_key)
+              .map((v) => ({ label: v?.name, value: v?.id }))[0]
+          }
         />
       </Form.Group>
 
@@ -72,6 +94,7 @@ export default function Sales(props) {
           name="sale_amount"
           onChange={handleChanges}
           min={0}
+          value={sale?.sale_amount}
         />
       </Form.Group>
 
@@ -83,6 +106,7 @@ export default function Sales(props) {
           name="tax_amount"
           onChange={handleChanges}
           min={0}
+          value={sale?.tax_amount}
         />
       </Form.Group>
 
@@ -94,6 +118,7 @@ export default function Sales(props) {
           name="shipping_amount"
           onChange={handleChanges}
           min={0}
+          value={sale?.shipping_amount}
         />
       </Form.Group>
 
@@ -112,9 +137,11 @@ export default function Sales(props) {
           type="checkbox"
           name="shipped"
           onChange={(e) => {
+            console.log('shipped e', e.target.value)
             setSale({ ...sale, shipped: e.target.checked })
           }}
-          checked={sale.shipped}
+          checked={sale?.shipped || false}
+          value="on"
         />
       </Form.Group>
     </>

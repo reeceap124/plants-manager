@@ -43,7 +43,6 @@ export default function PlantsList({
               >
                 Update
               </Button>
-              <Button>Sell</Button>
             </Card.Footer>
           </Card>
         )
