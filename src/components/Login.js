@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
 
 export default function Login() {
   let navigate = useNavigate()
@@ -27,26 +29,36 @@ export default function Login() {
   }
 
   return (
-    <form onSubmit={submit}>
-      <label>
-        Email:
-        <input
+    <Form onSubmit={submit}>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label>Email</Form.Label>
+        <Form.Control
           type="email"
+          placeholder="Enter email"
           name="email"
           onChange={handleChange}
-          value={credentials.email}
         />
-      </label>
-      <label>
-        Password:
-        <input
+        <Form.Text className="text-muted">
+          We'll never share your email with anyone else.
+        </Form.Text>
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Label>Password</Form.Label>
+        <Form.Control
           type="password"
+          placeholder="Password"
           name="password"
           onChange={handleChange}
-          value={credentials.password}
         />
-      </label>
-      <button type="submit">Login</button>
-    </form>
+        <Form.Text className="text-muted">
+          Please make it different from your bank login. We've done our best to
+          make sure this stays secure, but this is a hobby project...
+        </Form.Text>
+      </Form.Group>
+      <Button variant="primary" type="submit">
+        Submit
+      </Button>
+    </Form>
   )
 }

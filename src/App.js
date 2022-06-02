@@ -60,8 +60,8 @@ function App() {
         <PlantsProvider plants={[plants, setPlants]}>
           <StatusProvider statuses={[statuses, setStatuses]}>
             <UserProvider user={user}>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
+              {/* <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link> */}
 
               <Routes>
                 <Route
